@@ -104,8 +104,11 @@ Tabs.HuntLeviathan:AddToggle("BuySpy", {
         end
     end
 })
-Tabs.HuntLeviathan:AddToggle("Find", { Title = "Find Leviathan", Default = false }):OnChanged(function(Value)
-    _G.Auto = Value
+Tabs.HuntLeviathan:AddToggle("Find", { 
+    Title = "Find Leviathan",
+    Default = false,
+    Callback = function(Value)
+_G.Auto = Value
     local hum = LP.Character:FindFirstChild("Humanoid")
     if Value then
         task.spawn(function()
@@ -205,6 +208,7 @@ end)
         end)
     end
 end)
+
 local ToggleStart = Tabs.HuntLeviathan:AddToggle("StartLeviathan", {
     Title = "Start Leviathan",
     Default = false
