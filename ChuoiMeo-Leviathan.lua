@@ -279,7 +279,7 @@ spawn(function()
 		end
 	end)
 local Tabs = {
-    SeaEvent = Window:AddTab({ Title = "Hunt Leviathan", Icon = "map" }),
+    Q = Window:AddTab({ Title = "Sea Event", Icon = "map" }),
     Skill = Window:AddTab({ Title = "Select And Hold Skill", Icon = "zap" }),
     Fruit = Window:AddTab({ Title = "Fruit", Icon = "cherry" })
 }
