@@ -142,8 +142,8 @@ do
     Default = "Melee",
     Callback = function(Value)
         _G.SelectWeapon = Value
+    end)
     end
-})
 
 SaveManager:SetLibrary(Fluent)
 SaveManager:SetIgnoreIndexes({})
