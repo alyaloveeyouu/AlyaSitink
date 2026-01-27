@@ -1,5 +1,4 @@
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 
 local PlaceId = game.PlaceId
 local UniverseID = game.GameId
@@ -144,10 +143,5 @@ local WeaponDropdown = Tabs.SettingFarm:AddDropdown("WeaponDropdown", {
         _G.SelectWeapon = Value
     end
 })
-
-SaveManager:SetLibrary(Fluent)
-SaveManager:SetIgnoreIndexes({})
-SaveManager:SetFolder("BananaCatHub_Free")
-SaveManager:LoadAutoloadConfig()
 
 Window:SelectTab(1)
