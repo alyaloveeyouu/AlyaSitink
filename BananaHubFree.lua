@@ -220,76 +220,104 @@ do
     })
 end
    -------------------------------------------------------
--- [ ELITE HUNTER LOGIC - UPDATE MỖI 1 GIÂY ]
 -------------------------------------------------------
-local function GetEliteTitle()
+-- [ ELITE HUNTER LOGIC - MINIMALIST ]
+-------------------------------------------------------
+local function GetEliteStatus()
     local Elites = {"Deandre", "Diablo", "Urban"}
     local Found = false
-    local Enemies = workspace:FindFirstChild("Enemies")
     
-    if Enemies then
-        for _, v in pairs(Enemies:GetChildren()) do
-            for _, name in pairs(Elites) do
-                -- Kiểm tra tên Boss trong folder Enemies
-                if v.Name == name or (v:FindFirstChild("Humanoid") and v.Humanoid.DisplayName:find(name)) then
-                    Found = true
-                    break
+    -- Quét cả Workspace và Folder Enemies
+    local locations = {workspace, workspace:FindFirstChild("Enemies")}
+    
+    for _, folder in pairs(locations) do
+        if folder then
+            for _, v in pairs(folder:GetChildren()) do
+                if v:IsA("Model") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                    for _, name in pairs(Elites) do
+                        if v.Name == name or v.Humanoid.DisplayName:find(name) then
+                            Found = true
+                            break
+                        end
+                    end
                 end
+                if Found then break end
             end
-            if Found then break end
         end
+        if Found then break end
     end
     
     return "Elite Hunter : " .. (Found and "✅" or "❌")
 end
 
-do
-    -- Tạo Paragraph ban đầu
-    local EliteParagraph = Tabs.Status:AddParagraph({
-        Title = GetEliteTitle(), 
-        Content = "" 
-    })
+-- Khởi tạo Paragraph
+local EliteParagraph = Tabs.Status:AddParagraph({
+    Title = GetEliteStatus(), 
+    Content = "" 
+})
 
-    -- Vòng lặp cập nhật liên tục mỗi 1 giây
-    task.spawn(function()
-        while true do
-            task.wait(0.0001) -- Chỉnh lại thành 1 giây theo ý bạn
-            pcall(function()
-                EliteParagraph:SetTitle(GetEliteTitle())
-            end)
-        end
-    end)
-end
+-- Vòng lặp cập nhật
+task.spawn(function()
+    while true do
+        task.wait(2)
+        pcall(function()
+            EliteParagraph:SetTitle(GetEliteStatus())
+        end)
+    end
+end)
 
 Tabs.SeaEvent:AddButton({
     Title = "Teleport To Your Boat",
     Callback = function()
-        pcall(function()
-            local FoundBoat = false
-            for _, v in pairs(workspace.Boats:GetChildren()) do
-                if v:FindFirstChild("Owner") and v.Owner.Value == LP.Name then
+        local FoundBoat = false
+        local MyID = game.Players.LocalPlayer.UserId
+        local MyName = game.Players.LocalPlayer.Name
+
+        -- Hàm kiểm tra xem một Object có phải thuyền của mình không
+        local function IsMyBoat(v)
+            if v:IsA("Model") and (v:FindFirstChild("Owner") or v:FindFirstChild("VehicleSeat")) then
+                local ownerNode = v:FindFirstChild("Owner")
+                -- Kiểm tra qua Value của Owner (có thể là Name hoặc UserId)
+                if ownerNode and (tostring(ownerNode.Value) == MyName or tostring(ownerNode.Value) == tostring(MyID)) then
+                    return true
+                end
+            end
+            return false
+        end
+
+        -- Quét trong folder Boats (Chỗ phổ biến nhất)
+        local BoatFolder = workspace:FindFirstChild("Boats")
+        local SearchTarget = BoatFolder and BoatFolder:GetChildren() or workspace:GetChildren()
+
+        for _, v in pairs(SearchTarget) do
+            if IsMyBoat(v) then
+                local Seat = v:FindFirstChildOfClass("VehicleSeat") or v:FindFirstChild("MainSeat", true)
+                if Seat then
+                    LP.Character.HumanoidRootPart.CFrame = Seat.CFrame + Vector3.new(0, 3, 0)
+                    FoundBoat = true
+                    Fluent:Notify({Title = "Banana Cat Hub", Content = "Found your boat!", Duration = 3})
+                    break
+                end
+            end
+        end
+
+        -- Nếu vẫn không thấy, quét toàn bộ workspace (Trường hợp game đổi folder)
+        if not FoundBoat then
+            for _, v in pairs(workspace:GetChildren()) do
+                if IsMyBoat(v) then
                     local Seat = v:FindFirstChildOfClass("VehicleSeat")
                     if Seat then
-                        LP.Character.HumanoidRootPart.CFrame = Seat.CFrame
+                        LP.Character.HumanoidRootPart.CFrame = Seat.CFrame + Vector3.new(0, 3, 0)
                         FoundBoat = true
-                        Fluent:Notify({
-                            Title = "Banana Cat Hub",
-                            Content = "Teleported to your boat!",
-                            Duration = 3
-                        })
                         break
                     end
                 end
             end
-            
-            if not FoundBoat then
-                Fluent:Notify({
-                    Title = "Banana Cat Hub",
-                    Content = "Boat not found!",
-                    Duration = 3
-                })
-            end
-        end)
+        end
+
+        if not FoundBoat then
+            Fluent:Notify({Title = "Banana Cat Hub", Content = "Boat not found! Try spawning it again.", Duration = 3})
+        end
     end
 })
 
