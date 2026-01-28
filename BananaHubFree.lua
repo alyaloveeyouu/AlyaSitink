@@ -112,6 +112,23 @@ spawn(function()
         end
     end
 end)
+-- [[ HÀM NOCLIP TỐI ƯU ]]
+_G.NoClip = true -- Mặc định bật NoClip
+
+task.spawn(function()
+    game:GetService("RunService").Stepped:Connect(function()
+        pcall(function()
+            if _G.NoClip and game.Players.LocalPlayer.Character then
+                for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                    if v:IsA("BasePart") then
+                        v.CanCollide = false
+                    end
+                end
+            end
+        end)
+    end)
+end)
+
 
 -- Tab Shop
 do
@@ -262,7 +279,6 @@ task.spawn(function()
         end)
     end
 end)
-)
 
 Tabs.SeaEvent:AddButton({
     Title = "Teleport To Your Boat",
