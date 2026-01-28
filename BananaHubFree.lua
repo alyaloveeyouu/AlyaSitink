@@ -221,27 +221,25 @@ do
 end
    -------------------------------------------------------
 -------------------------------------------------------
--- [ ELITE HUNTER LOGIC - MINIMALIST ]
+-------------------------------------------------------
+-- [ ELITE HUNTER - FULL SCAN LOGIC ]
 -------------------------------------------------------
 local function GetEliteStatus()
     local Elites = {"Deandre", "Diablo", "Urban"}
     local Found = false
     
-    -- Quét cả Workspace và Folder Enemies
-    local locations = {workspace, workspace:FindFirstChild("Enemies")}
-    
-    for _, folder in pairs(locations) do
-        if folder then
-            for _, v in pairs(folder:GetChildren()) do
-                if v:IsA("Model") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-                    for _, name in pairs(Elites) do
-                        if v.Name == name or v.Humanoid.DisplayName:find(name) then
-                            Found = true
-                            break
-                        end
+    -- Quét toàn bộ mọi thứ trong Workspace (bao gồm tất cả folder con)
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("Model") and v:FindFirstChild("Humanoid") then
+            -- Kiểm tra máu để chắc chắn boss còn sống
+            if v.Humanoid.Health > 0 then
+                for _, name in pairs(Elites) do
+                    -- Kiểm tra tên model hoặc tên hiển thị
+                    if v.Name == name or (v.Humanoid.DisplayName and v.Humanoid.DisplayName:find(name)) then
+                        Found = true
+                        break
                     end
                 end
-                if Found then break end
             end
         end
         if Found then break end
@@ -250,21 +248,21 @@ local function GetEliteStatus()
     return "Elite Hunter : " .. (Found and "✅" or "❌")
 end
 
--- Khởi tạo Paragraph
+-- Tạo Paragraph gọn nhất
 local EliteParagraph = Tabs.Status:AddParagraph({
     Title = GetEliteStatus(), 
     Content = "" 
 })
 
--- Vòng lặp cập nhật
+-- Vòng lặp cập nhật mỗi 2 giây để tránh lag máy
 task.spawn(function()
-    while true do
-        task.wait(2)
+    while task.wait(0.1) do
         pcall(function()
             EliteParagraph:SetTitle(GetEliteStatus())
         end)
     end
 end)
+)
 
 Tabs.SeaEvent:AddButton({
     Title = "Teleport To Your Boat",
