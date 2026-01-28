@@ -113,7 +113,7 @@ spawn(function()
     end
 end)
 
--- [[ NỘI DUNG TABS ]]
+-- Tab Shop
 do
     -- Section: Abilities Shop
     Tabs.Shop:AddSection("Abilities Shop")
@@ -168,7 +168,7 @@ do
             game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(v366))
         end
     })
-    
+    -- Setting Farm
     -- Section: Farm Setting
     Tabs.SettingFarm:AddSection("Attack Settings")
     Tabs.SettingFarm:AddDropdown("WeaponDropdown", {
@@ -260,6 +260,39 @@ do
         end
     end)
 end
+
+Tabs.SeaEvent:AddButton({
+    Title = "Teleport To Your Boat",
+    Callback = function()
+        pcall(function()
+            local FoundBoat = false
+            for _, v in pairs(workspace.Boats:GetChildren()) do
+                if v:FindFirstChild("Owner") and v.Owner.Value == LP.Name then
+                    local Seat = v:FindFirstChildOfClass("VehicleSeat")
+                    if Seat then
+                        LP.Character.HumanoidRootPart.CFrame = Seat.CFrame
+                        FoundBoat = true
+                        Fluent:Notify({
+                            Title = "Banana Cat Hub",
+                            Content = "Teleported to your boat!",
+                            Duration = 3
+                        })
+                        break
+                    end
+                end
+            end
+            
+            if not FoundBoat then
+                Fluent:Notify({
+                    Title = "Banana Cat Hub",
+                    Content = "Boat not found!",
+                    Duration = 3
+                })
+            end
+        end)
+    end
+})
+
 local ToggleFind = Tabs.SeaEvent:AddToggle("FindLevi", { Title = "Find Leviathan", Default = false })
 
 ToggleFind:OnChanged(function(Value)
@@ -341,6 +374,93 @@ ToggleFind:OnChanged(function(Value)
     end
 end)
 
+local IslandData = {
+    ["Sea 1"] = {
+        ["Starter Island"] = Vector3.new(1054, 16, 1421),
+        ["Jungle"] = Vector3.new(-1248, 11, 312),
+        ["Pirate Village"] = Vector3.new(-1122, 14, 3850),
+        ["Desert"] = Vector3.new(1094, 6, 4404),
+        ["Middle Town"] = Vector3.new(-650, 8, 1583),
+        ["Frozen Village"] = Vector3.new(1251, 28, -1313),
+        ["Marineford"] = Vector3.new(-2448, 73, 4016),
+        ["Skypiea"] = Vector3.new(-4842, 717, -2622),
+        ["Prison"] = Vector3.new(4871, 5, 734),
+        ["Magma Village"] = Vector3.new(-5245, 8, 8460),
+        ["Fountain City"] = Vector3.new(5117, 64, 4118),
+        ["Underwater City"] = Vector3.new(61164, 18, 1567)
+    },
+    ["Sea 2"] = {
+        ["Kingdom of Rose"] = Vector3.new(-453, 72, 1530),
+        ["Cafe"] = Vector3.new(-380, 73, 290),
+        ["Green Bit"] = Vector3.new(-2384, 72, -3056),
+        ["Graveyard"] = Vector3.new(-5414, 48, -744),
+        ["Snow Mountain"] = Vector3.new(628, 401, -1355),
+        ["Hot and Cold"] = Vector3.new(-6115, 15, -4933),
+        ["Cursed Ship"] = Vector3.new(923, 125, 32885),
+        ["Ice Castle"] = Vector3.new(6093, 27, -6161),
+        ["Forgotten Island"] = Vector3.new(-3050, 237, -10168),
+        ["Dark Arena"] = Vector3.new(3917, 55, -11411),
+        ["The Factory"] = Vector3.new(424, 211, -428)
+    },
+    ["Sea 3"] = {
+        ["Port Town"] = Vector3.new(-290, 6, 5307),
+        ["Hydra Island"] = Vector3.new(5745, 613, -270),
+        ["Floating Turtle"] = Vector3.new(-13234, 431, -7644),
+        ["Castle on the Sea"] = Vector3.new(-5075, 314, -3151),
+        ["Haunted Castle"] = Vector3.new(-9547, 141, 5532),
+        ["Sea of Treats (Candy)"] = Vector3.new(-2004, 37, -12028),
+        ["Tiki Outpost"] = Vector3.new(-12463, 11, -2256), -- Update 20
+        ["Chocolate Land"] = Vector3.new(125, 25, -12574),
+        ["Peanut Island"] = Vector3.new(-1981, 37, -12140),
+        ["Cake Island"] = Vector3.new(-1891, 14, -13608),
+        ["Ice Cream Land"] = Vector3.new(-830, 65, -12686),
+        ["Hydra Arena"] = Vector3.new(5216, 17, -1113),
+        ["Temple of Time"] = Vector3.new(2830, 14897, 105) -- Để làm Race V4
+    }
+}
+
+-- [[ XỬ LÝ NHẬN DIỆN SEA ]]
+local CurrentSea = "Sea 1"
+local SeaId = game.PlaceId
+if SeaId == 4442272183 then CurrentSea = "Sea 2"
+elseif SeaId == 7449423635 then CurrentSea = "Sea 3" end
+
+local IslandNames = {}
+for name, _ in pairs(IslandData[CurrentSea]) do
+    table.insert(IslandNames, name)
+end
+table.sort(IslandNames) -- Sắp xếp tên theo bảng chữ cái cho dễ nhìn
+
+-- [[ UI COMPONENT ]]
+local SelectedIsland = nil
+
+Tabs.LocalPlayer:AddDropdown("IslandDropdown", {
+    Title = "Select Island",
+    Values = IslandNames,
+    Multi = false,
+    Default = nil,
+    Callback = function(Value)
+        SelectedIsland = Value
+    end
+})
+
+Tabs.LocalPlayer:AddToggle("TpIsland", {
+    Title = "Teleport To Island Selected",
+    Default = false,
+    Callback = function(Value)
+        _G.TpIsland = Value
+        task.spawn(function()
+            while _G.TpIsland do
+                if SelectedIsland and IslandData[CurrentSea][SelectedIsland] then
+                    local TargetPos = IslandData[CurrentSea][SelectedIsland]
+                    -- Sử dụng hàm _G:Tween bạn đã có sẵn
+                    _G:Tween(CFrame.new(TargetPos))
+                end
+                task.wait(0.5)
+            end
+        end)
+    end
+})
 
 
 -- [[ QUẢN LÝ CẤU HÌNH ]]
