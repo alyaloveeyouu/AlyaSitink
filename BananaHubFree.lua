@@ -2,11 +2,8 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
-local PlaceId = game.PlaceId
-
--- [[ CẤU HÌNH BANANA CAT HUB ]]
 local Window = Fluent:CreateWindow({
-    Title = "Banana Cat Hub - Leviathan [ Premium ]",
+    Title = "Banana Cat Hub - Blox Fruit [ Free ]",
     SubTitle = "by tài",
     TabWidth = 170,
     Size = UDim2.fromOffset(520, 380),
@@ -15,18 +12,16 @@ local Window = Fluent:CreateWindow({
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
--- [[ NUT TOGGLE UI ]]
+-- [[ NÚT TOGGLE MENU ]]
 local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
 local Btn = Instance.new("ImageButton", ScreenGui)
-Btn.Name = "BananaCatToggle"
-Btn.Size = UDim2.new(0, 60, 0, 60)
-Btn.Position = UDim2.new(0, 15, 0.12, 0)
-Btn.BackgroundTransparency = 1
-Btn.Image = "rbxassetid://127470963031421"
-Instance.new("UICorner", Btn).CornerRadius = UDim.new(1, 0)
+Btn.Size, Btn.Position, Btn.BackgroundTransparency = UDim2.new(0,60,0,60), UDim2.new(0,15,0.02,0), 1
+Btn.Image = "https://www.roblox.com/asset-thumbnail/image?assetId=127470963031421&width=420&height=420&format=png"
+Instance.new("UICorner", Btn).CornerRadius = UDim.new(1,0)
 Btn.MouseButton1Click:Connect(function() Window:Minimize() end)
 
--- [[ KHỞI TẠO TABS ]]
+
+-- [[ KHỞI TẠO ĐẦY ĐỦ TABS ]]
 local Tabs = {
     Shop = Window:AddTab({ Title = "Shop", Icon = "shopping-cart" }),
     Status = Window:AddTab({ Title = "Status And Server", Icon = "info" }),
@@ -36,93 +31,129 @@ local Tabs = {
     Farming = Window:AddTab({ Title = "Farming", Icon = "swords" }),
     StackFarming = Window:AddTab({ Title = "Stack Farming", Icon = "layers" }),
     FarmingOther = Window:AddTab({ Title = "Farming Other", Icon = "plus-circle" }),
-    FruitRaid = Window:AddTab({ Title = "Fruit and Raid", Icon = "citrus" }),
+    FruitRaid = Window:AddTab({ Title = "Fruit and Raid, Dungeon", Icon = "citrus" }),
     SeaEvent = Window:AddTab({ Title = "Sea Event", Icon = "waves" }),
     UpgradeRace = Window:AddTab({ Title = "Upgrade Race", Icon = "dna" }),
-    Items = Window:AddTab({ Title = "Get Items", Icon = "package" }),
+    Items = Window:AddTab({ Title = "Get and Upgrade Items", Icon = "package" }),
     Volcano = Window:AddTab({ Title = "Volcano Event", Icon = "flame" }),
     ESP = Window:AddTab({ Title = "ESP", Icon = "eye" }),
     PVP = Window:AddTab({ Title = "PVP", Icon = "crosshair" }),
-    Webhook = Window:AddTab({ Title = "Webhook", Icon = "message-square" }),
-    Setting = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    Webhook = Window:AddTab({ Title = "Tab Webhook", Icon = "message-square" }),
+    Setting = Window:AddTab({ Title = "Setting", Icon = "settings" })
 }
+local TS = game:GetService("TweenService")
+local RS = game:GetService("RunService")
+local LP = game.Players.LocalPlayer
+local activeTween, freezeY = nil, nil
 
-	local Attack = {}
-	Attack.__index = Attack
-	Attack.Alive = function(model)
-		if not model then
-			return
-		end
-		local Humanoid = model:FindFirstChild("Humanoid")
-		return Humanoid and Humanoid.Health > 0
-	end
-	Attack.Pos = function(model, dist)
-		return (Root.Position - mode.Position).Magnitude <= dist
-	end
-	Attack.Dist = function(model, dist)
-		return (Root.Position - model:FindFirstChild("HumanoidRootPart").Position).Magnitude <= dist
-	end
-	Attack.DistH = function(model, dist)
-		return (Root.Position - model:FindFirstChild("HumanoidRootPart").Position).Magnitude > dist
-	end
-	Attack.Kill = function(model, Succes)
-		if model and Succes then
-			if not model:GetAttribute("Locked") then
-				model:SetAttribute("Locked", model.HumanoidRootPart.CFrame)
-			end
-                    game:GetService("VirtualUser"):CaptureController()
-                    game:GetService("VirtualUser"):Button1Down(Vector2.new(0.01, -500, 0.01))
+local function SetVelocity(part, enable)
+    if not part then return end
+    if part:FindFirstChild("CatV") then part.CatV:Destroy() end
+    if part:FindFirstChild("CatA") then part.CatA:Destroy() end
+    if enable then
+        local att = Instance.new("Attachment", part); att.Name = "CatA"
+        local lv = Instance.new("LinearVelocity", part)
+        lv.Name = "CatV"
+        lv.MaxForce = math.huge
+        lv.VelocityConstraintMode = Enum.VelocityConstraintMode.Vector
+        lv.VectorVelocity = Vector3.zero
+        lv.Attachment0 = att
+    end
+end
+
+RS.Stepped:Connect(function()
+    if _G.Auto and freezeY and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+        local hrp = LP.Character.HumanoidRootPart
+        hrp.Velocity = Vector3.new(hrp.Velocity.X, 0, hrp.Velocity.Z)
+        local hum = LP.Character:FindFirstChild("Humanoid")
+        if hum and hum.SeatPart and hum.SeatPart.Parent:FindFirstChild("PrimaryPart") then
+            local boat = hum.SeatPart.Parent.PrimaryPart
+            boat.Velocity = Vector3.new(boat.Velocity.X, 0, boat.Velocity.Z)
+        end
+    end
+end)
+
+
+-- [[ LOGIC FAST ATTACK MODULE ]]
+local Attack = {}
+Attack.__index = Attack
+Attack.Alive = function(model)
+    if not model then return false end
+    local Humanoid = model:FindFirstChild("Humanoid")
+    return Humanoid and Humanoid.Health > 0
+end
+Attack.Dist = function(model, dist)
+    local Root = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not Root or not model:FindFirstChild("HumanoidRootPart") then return false end
+    return (Root.Position - model.HumanoidRootPart.Position).Magnitude <= dist
+end
+
+-- [[ VÒNG LẶP FAST ATTACK & AUTO CLICK NGOÀI MÀN HÌNH ]]
+spawn(function()
+    while task.wait(0.1) do
+        if _G.FastAttackToggle then
+            pcall(function()
+                local LP = game.Players.LocalPlayer
+                if not LP.Character or not LP.Character:FindFirstChildOfClass("Tool") then return end
+                
+                local Enemies = workspace:FindFirstChild("Enemies")
+                if Enemies then
+                    for _, v in pairs(Enemies:GetChildren()) do
+                        if Attack.Alive(v) and Attack.Dist(v, 55) then
+                            game:GetService("ReplicatedStorage").Modules.Net:WaitForChild("RE/RegisterAttack"):FireServer(0)
+                            game:GetService("ReplicatedStorage").Modules.Net:WaitForChild("RE/RegisterHit"):FireServer(v.HumanoidRootPart)
+                        end
+                    end
                 end
+                
+                game:GetService("VirtualUser"):CaptureController()
+                game:GetService("VirtualUser"):Button1Down(Vector2.new(0.01, -500, 0.01))
             end)
         end
     end
 end)
 
--- [[ ANTI IDLE ]]
-game:GetService("Players").LocalPlayer.Idled:connect(function()
-    game:GetService("VirtualUser"):Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-    task.wait(1)
-    game:GetService("VirtualUser"):Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-end)
-
 -- [[ NỘI DUNG TABS ]]
 do
-    -- Shop Section
+    -- Section: Abilities Shop
+    Tabs.Shop:AddSection("Abilities Shop")
+    
+    Tabs.Shop:AddButton({
+        Title = "Buy Sky Jump",
+        Callback = function() game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyHaki", "Geppo") end
+    })
+    Tabs.Shop:AddButton({
+        Title = "Buy Buso Haki",
+        Callback = function() game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyHaki", "Buso") end
+    })
+    Tabs.Shop:AddButton({
+        Title = "Buy Soru",
+        Callback = function() game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyHaki", "Soru") end
+    })
+    Tabs.Shop:AddButton({
+        Title = "Buy Observation Haki",
+        Callback = function() game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("KenTalk2", "Buy") end
+    })
+
+    -- Section: Teleport Sea
+    Tabs.Shop:AddSection("Teleport Sea")
+    Tabs.Shop:AddButton({Title = "Teleport Sea 1", Callback = function() game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("TravelMain") end})
+    Tabs.Shop:AddButton({Title = "Teleport Sea 2", Callback = function() game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("TravelDressrosa") end})
+    Tabs.Shop:AddButton({Title = "Teleport Sea 3", Callback = function() game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("TravelZou") end})
+
+    -- Section: Misc Shop & Codes
     Tabs.Shop:AddSection("Misc Shop")
     Tabs.Shop:AddButton({
         Title = "Redeem All Codes",
         Callback = function()
-            local Codes = {"REWARDFUN","NEWTROLL","KITT_RESET","Sub2CaptainMaui","DEVSCOOKING","Sub2Fer999","Enyu_is_Pro","Magicbus","JCWK","Starcodeheo","Bluxxy","fudd10_v2","FUDD10","CHANDLER","BIGNEWS","BELUGASUB","Sub2OfficialNoobie","StrawHatMaine","SUB2NOOBMASTER123","Sub2UncleKizaru","Sub2Daigrock","Axiore","TantaiGaming","STRAWHATMAINE"}
+            local Codes = {"REWARDFUN","NEWTROLL","KITT_RESET","Sub2CaptainMaui","DEVSCOOKING","Sub2Fer999","Enyu_is_Pro","Magicbus","JCWK","Starcodeheo","Bluxxy","fudd10_v2","FUDD10","CHANDLER","BIGNEWS","BELUGASUB","Sub2OfficialNoobie","StrawHatMaine","SUB2NOOBMASTER123","Sub2UncleKizaru","Sub2Daigrock","Axiore","TantaiGaming"}
             for _, v in pairs(Codes) do game:GetService("ReplicatedStorage").Remotes.Redeem:InvokeServer(v) end
-            Fluent:Notify({Title = "Banana Cat", Content = "Redeemed all codes!", Duration = 5})
+            Fluent:Notify({Title = "Banana Cat", Content = "Redeemed All Code", Duration = 5})
         end
     })
-
-    -- Teleports
-    Tabs.Shop:AddButton({Title = "Teleport Sea 1", Callback = function() game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("TravelMain") end})
-    Tabs.Shop:AddButton({Title = "Teleport Sea 2", Callback = function() game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("TravelDressrosa") end})
-    Tabs.Shop:AddButton({Title = "Teleport Sea 3", Callback = function() game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("TravelZou") end})
-    Tabs.Shop:AddButton({
-        Title = "Buy Dual Flintlock",
-        Callback = function()
-            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyItem", "Dual Flintlock")
-        end
-    })
-
-    Tabs.Shop:AddButton({
-        Title = "Reroll Race",
-        Callback = function()
-            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BlackbeardReward", "Reroll", "2")
-        end
-    })
-
-    Tabs.Shop:AddButton({
-        Title = "Reset Stats",
-        Callback = function()
-            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BlackbeardReward", "Refund", "2")
-        end
-    })
-
+    Tabs.Shop:AddButton({Title = "Buy Dual Flintlock", Callback = function() game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyItem", "Dual Flintlock") end})
+    Tabs.Shop:AddButton({Title = "Reroll Race", Callback = function() game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BlackbeardReward", "Reroll", "2") end})
+    Tabs.Shop:AddButton({Title = "Reset Stats", Callback = function() game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BlackbeardReward", "Refund", "2") end})
     Tabs.Shop:AddButton({
         Title = "Buy Race Cyborg",
         Callback = function()
@@ -137,83 +168,201 @@ do
             game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(v366))
         end
     })
-    -- Setting Farm Section
-    Tabs.SettingFarm:AddSection("Attack Settings")
     
+    -- Section: Farm Setting
+    Tabs.SettingFarm:AddSection("Attack Settings")
     Tabs.SettingFarm:AddDropdown("WeaponDropdown", {
         Title = "Select Weapon",
         Values = {"Melee", "Sword", "Gun"},
         Multi = false,
-        Default = "Melee"
+        Default = "Melee",
+        Callback = function(Value) _G.SelectWeapon = Value end
     })
-
     Tabs.SettingFarm:AddToggle("FastAttackToggle", {
         Title = "Fast Attack",
-        Default = true
-        Callback = function()
-        local Attack = {}
-	Attack.__index = Attack
-	Attack.Alive = function(model)
-		if not model then
-			return
-		end
-		local Humanoid = model:FindFirstChild("Humanoid")
-		return Humanoid and Humanoid.Health > 0
-	end
-	Attack.Pos = function(model, dist)
-		return (Root.Position - mode.Position).Magnitude <= dist
-	end
-	Attack.Dist = function(model, dist)
-		return (Root.Position - model:FindFirstChild("HumanoidRootPart").Position).Magnitude <= dist
-	end
-	Attack.DistH = function(model, dist)
-		return (Root.Position - model:FindFirstChild("HumanoidRootPart").Position).Magnitude > dist
-	end
-	Attack.Kill = function(model, Succes)
-		if model and Succes then
-			if not model:GetAttribute("Locked") then
-				model:SetAttribute("Locked", model.HumanoidRootPart.CFrame)
-			end
-                    game:GetService("VirtualUser"):CaptureController()
-                    game:GetService("VirtualUser"):Button1Down(Vector2.new(0.01, -500, 0.01))
+        Default = true,
+        Callback = function(Value) _G.FastAttackToggle = Value end
+    })
+end
+    -- [[ BIẾN TOÀN CỤC ]]
+_G.SpeedTween = 325
+
+-- [[ HÀM TWEEN SERVICE TÍCH HỢP SẴN ]]
+function _G:Tween(Target)
+    local Character = game.Players.LocalPlayer.Character
+    if Character and Character:FindFirstChild("HumanoidRootPart") then
+        local Root = Character.HumanoidRootPart
+        local Distance = (Target.Position - Root.Position).Magnitude
+        
+        -- Tính toán thời gian dựa trên tốc độ từ hộp văn bản
+        local Time = Distance / _G.SpeedTween
+        local Info = TweenInfo.new(Time, Enum.EasingStyle.Linear)
+        
+        local CreateTween = game:GetService("TweenService"):Create(Root, Info, {CFrame = Target})
+        CreateTween:Play()
+        
+        return CreateTween
+    end
+end
+
+-- [[ GIAO DIỆN ]]
+do
+ 
+    Tabs.SettingFarm:AddInput("SpeedTweenInput", {
+        Title = "Speed Tween",
+        Default = "325",
+        Placeholder = "Input Speed Tween",
+        Numeric = true,
+        Finished = false, -- Cập nhật ngay lập tức khi thay đổi số
+        Callback = function(Value)
+            _G.SpeedTween = tonumber(Value) or 325
+        end
+    })
+end
+   -------------------------------------------------------
+-- [ ELITE HUNTER LOGIC - UPDATE MỖI 1 GIÂY ]
+-------------------------------------------------------
+local function GetEliteTitle()
+    local Elites = {"Deandre", "Diablo", "Urban"}
+    local Found = false
+    local Enemies = workspace:FindFirstChild("Enemies")
+    
+    if Enemies then
+        for _, v in pairs(Enemies:GetChildren()) do
+            for _, name in pairs(Elites) do
+                -- Kiểm tra tên Boss trong folder Enemies
+                if v.Name == name or (v:FindFirstChild("Humanoid") and v.Humanoid.DisplayName:find(name)) then
+                    Found = true
+                    break
                 end
+            end
+            if Found then break end
+        end
+    end
+    
+    return "Elite Hunter : " .. (Found and "✅" or "❌")
+end
+
+do
+    -- Tạo Paragraph ban đầu
+    local EliteParagraph = Tabs.Status:AddParagraph({
+        Title = GetEliteTitle(), 
+        Content = "" 
+    })
+
+    -- Vòng lặp cập nhật liên tục mỗi 1 giây
+    task.spawn(function()
+        while true do
+            task.wait(0.0001) -- Chỉnh lại thành 1 giây theo ý bạn
+            pcall(function()
+                EliteParagraph:SetTitle(GetEliteTitle())
             end)
         end
+    end)
+end
+local ToggleFind = Tabs.SeaEvent:AddToggle("FindLevi", { Title = "Find Leviathan", Default = false })
+
+ToggleFind:OnChanged(function(Value)
+    _G.Auto = Value
+    if Value then
+        task.spawn(function()
+            local notified = false
+            while _G.Auto do
+                pcall(function()
+                    local hum = LP.Character:FindFirstChild("Humanoid")
+                    local seat = hum and hum.SeatPart
+                    
+                    if seat and seat:IsA("VehicleSeat") then
+                        local IsFrozen = workspace:FindFirstChild("FrozenDimension", true)
+                        
+                        if IsFrozen then
+                            if activeTween then activeTween:Cancel() end
+                            freezeY = nil
+                            SetVelocity(seat.Parent.PrimaryPart, false)
+                            if not notified then
+                                Fluent:Notify({Title = "Banana Cat Hub", Content = "Frozen Dimension Spawned...", Duration = 5})
+                                notified = true
+                            end
+                            repeat task.wait(0.5) until not workspace:FindFirstChild("FrozenDimension", true) or not _G.Auto
+                        else
+                            notified = false
+                            local boat = seat.Parent.PrimaryPart
+                            SetVelocity(boat, true)
+                            
+                            freezeY = 1000
+                            boat.CFrame = CFrame.new(boat.Position.X, 1000, boat.Position.Z)
+                            task.wait(1)
+                            
+                            if _G.Auto and not workspace:FindFirstChild("FrozenDimension", true) and hum.SeatPart == seat and boat.Position.Z < 14238 then
+                                local dist = (Vector3.new(-13608, 1000, 14238) - boat.Position).Magnitude
+                                activeTween = TS:Create(boat, TweenInfo.new(dist/250, Enum.EasingStyle.Linear), {CFrame = CFrame.new(-13608, 1000, 14238)})
+                                activeTween:Play()
+                                
+                                while _G.Auto and activeTween and activeTween.PlaybackState == Enum.PlaybackState.Playing and hum.SeatPart == seat do
+                                    if workspace:FindFirstChild("FrozenDimension", true) then activeTween:Cancel() break end
+                                    task.wait(0.1)
+                                end
+                            end
+                            
+                            if _G.Auto and not workspace:FindFirstChild("FrozenDimension", true) and hum.SeatPart == seat then
+                                if activeTween then activeTween:Cancel() end
+                                freezeY = 175
+                                boat.CFrame = CFrame.new(boat.Position.X, 175, boat.Position.Z)
+                                task.wait(1)
+                                
+                                if _G.Auto and not workspace:FindFirstChild("FrozenDimension", true) and hum.SeatPart == seat then
+                                    local targetCFrame = CFrame.new(boat.Position.X, 175, 1000000)
+                                    activeTween = TS:Create(boat, TweenInfo.new(4000, Enum.EasingStyle.Linear), {CFrame = targetCFrame})
+                                    activeTween:Play()
+                                    
+                                    while _G.Auto and activeTween and activeTween.PlaybackState == Enum.PlaybackState.Playing and hum.SeatPart == seat do
+                                        if workspace:FindFirstChild("FrozenDimension", true) then activeTween:Cancel() break end
+                                        pcall(function() boat.CatV.VectorVelocity = boat.CFrame.LookVector * 250 end)
+                                        task.wait(0.1)
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end)
+                task.wait(0.5)
+            end
+        end)
+    else
+        if activeTween then activeTween:Cancel() end
+        freezeY = nil
+        pcall(function()
+            local hum = LP.Character:FindFirstChild("Humanoid")
+            if hum and hum.SeatPart then
+                SetVelocity(hum.SeatPart.Parent.PrimaryPart, false)
+                hum.SeatPart.Parent.PrimaryPart.CFrame = CFrame.new(hum.SeatPart.Parent.PrimaryPart.Position.X, 28, hum.SeatPart.Parent.PrimaryPart.Position.Z)
+            end
+        end)
     end
 end)
 
--- [[ ANTI IDLE ]]
+
+
+-- [[ QUẢN LÝ CẤU HÌNH ]]
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({})
+InterfaceManager:BuildInterfaceSection(Tabs.Setting)
+SaveManager:BuildConfigSection(Tabs.Setting)
+
+Window:SelectTab(1)
+SaveManager:LoadAutoloadConfig()
+
+Fluent:Notify({
+    Title = "Banana Cat Hub [ Free ]",
+    Content = "Script đã sẵn sàng với Abilities Shop!",
+    Duration = 5
+})
+
+-- Anti-Idle
 game:GetService("Players").LocalPlayer.Idled:connect(function()
     game:GetService("VirtualUser"):Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
     task.wait(1)
     game:GetService("VirtualUser"):Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
 end)
-    })
-    end
-    -- [[ QUẢN LÝ LƯU CẤU HÌNH ]]
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
-
--- Thiết lập các tùy chọn bỏ qua (nếu có)
-SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({})
-
--- Xây dựng giao diện lưu/tải cấu hình trong Tab Setting
-InterfaceManager:BuildInterfaceSection(Tabs.Setting)
-SaveManager:BuildConfigSection(Tabs.Setting)
-
--- Chọn Tab mặc định khi mở Script (Tab 1 là Shop)
-Window:SelectTab(1)
-
--- Tự động tải cấu hình đã lưu từ trước (Autoload)
-SaveManager:LoadAutoloadConfig()
-
--- Thông báo cho người dùng khi Script đã sẵn sàng
-Fluent:Notify({
-    Title = "Banana Cat Hub - Leviathan",
-    Content = "Tất cả cấu hình đã được áp dụng!",
-    Duration = 5
-})
-
--- In log kiểm tra để chắc chắn script đã chạy đến dòng cuối cùng
-print("Banana Cat Hub - Premium [ Loaded Successfully ]")
