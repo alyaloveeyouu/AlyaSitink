@@ -374,99 +374,15 @@ ToggleFind:OnChanged(function(Value)
     end
 end)
 
-local IslandData = {
-    ["Sea 1"] = {
-        ["Starter Island"] = Vector3.new(1054, 16, 1421),
-        ["Jungle"] = Vector3.new(-1248, 11, 312),
-        ["Pirate Village"] = Vector3.new(-1122, 14, 3850),
-        ["Desert"] = Vector3.new(1094, 6, 4404),
-        ["Middle Town"] = Vector3.new(-650, 8, 1583),
-        ["Frozen Village"] = Vector3.new(1251, 28, -1313),
-        ["Marineford"] = Vector3.new(-2448, 73, 4016),
-        ["Skypiea"] = Vector3.new(-4842, 717, -2622),
-        ["Prison"] = Vector3.new(4871, 5, 734),
-        ["Magma Village"] = Vector3.new(-5245, 8, 8460),
-        ["Fountain City"] = Vector3.new(5117, 64, 4118),
-        ["Underwater City"] = Vector3.new(61164, 18, 1567)
-    },
-    ["Sea 2"] = {
-        ["Kingdom of Rose"] = Vector3.new(-453, 72, 1530),
-        ["Cafe"] = Vector3.new(-380, 73, 290),
-        ["Green Bit"] = Vector3.new(-2384, 72, -3056),
-        ["Graveyard"] = Vector3.new(-5414, 48, -744),
-        ["Snow Mountain"] = Vector3.new(628, 401, -1355),
-        ["Hot and Cold"] = Vector3.new(-6115, 15, -4933),
-        ["Cursed Ship"] = Vector3.new(923, 125, 32885),
-        ["Ice Castle"] = Vector3.new(6093, 27, -6161),
-        ["Forgotten Island"] = Vector3.new(-3050, 237, -10168),
-        ["Dark Arena"] = Vector3.new(3917, 55, -11411),
-        ["Factory"] = Vector3.new(424, 211, -428)
-    },
-    ["Sea 3"] = {
-        ["Port Town"] = Vector3.new(-290, 6, 5307),
-        ["Hydra Island"] = Vector3.new(5745, 613, -270),
-        ["Floating Turtle"] = Vector3.new(-13234, 431, -7644),
-        ["Castle on the Sea"] = Vector3.new(-5075, 314, -3151),
-        ["Haunted Castle"] = Vector3.new(-9547, 141, 5532),
-        ["Tiki Outpost"] = Vector3.new(-12463, 11, -2256),
-        ["Chocolate Land"] = Vector3.new(125, 25, -12574),
-        ["Peanut Island"] = Vector3.new(-1981, 37, -12140),
-        ["Cake Island"] = Vector3.new(-1891, 14, -13608),
-        ["Ice Cream Land"] = Vector3.new(-830, 65, -12686),
-        ["Candy Cane Island"] = Vector3.new(-1120, 15, -14450),
-        ["Temple of Time"] = Vector3.new(2830, 14897, 105)
-    }
-}
-
--- [[ LOGIC NHẬN DIỆN SEA CHUẨN ID ]]
-local CurrentSea = "Sea 1"
-local pId = game.PlaceId
-
-if pId == 2753915549 then 
-    CurrentSea = "Sea 1"
-elseif pId == 4442272183 then 
-    CurrentSea = "Sea 2"
-elseif pId == 7449423635 then 
-    CurrentSea = "Sea 3" 
-end
-
-local IslandNames = {}
-for name, _ in pairs(IslandData[CurrentSea]) do
-    table.insert(IslandNames, name)
-end
-table.sort(IslandNames)
-
--- [[ UI DROPDOWN & TOGGLE ]]
-local SelectedIsland = nil
-
-Tabs.LocalPlayer:AddDropdown("IslandDropdown", {
-    Title = "Select Island",
-    Values = IslandNames,
+Tabs.LocalPlayer:AddDropdown("TeamDropdown", {
+    Title = "Auto Select Team",
+    Values = {"Pirates", "Marines"},
     Multi = false,
-    Default = nil,
+    Default = "Marines",
     Callback = function(Value)
-        SelectedIsland = Value
+        _G.SelectedTeam = Value -- Lưu lựa chọn vào biến toàn cục
     end
 })
-
-Tabs.LocalPlayer:AddToggle("TpIsland", {
-    Title = "Teleport To Island Selected",
-    Default = false,
-    Callback = function(Value)
-        _G.TpIsland = Value
-        task.spawn(function()
-            while _G.TpIsland do
-                if SelectedIsland and IslandData[CurrentSea][SelectedIsland] then
-                    local TargetPos = IslandData[CurrentSea][SelectedIsland]
-                    -- Sử dụng hàm _G:Tween bạn đã khai báo sẵn
-                    _G:Tween(CFrame.new(TargetPos))
-                end
-                task.wait(1)
-            end
-        end)
-    end
-})
-
 
 
 -- [[ QUẢN LÝ CẤU HÌNH ]]
@@ -479,10 +395,34 @@ SaveManager:BuildConfigSection(Tabs.Setting)
 
 Window:SelectTab(1)
 SaveManager:LoadAutoloadConfig()
+task.spawn(function()
+    -- Đợi game load và cấu hình cũ được tải xong
+    repeat task.wait() until game:IsLoaded()
+    task.wait(1.5) -- Đợi SaveManager ổn định dữ liệu
+
+    -- KIỂM TRA: Chỉ thực hiện nếu Team hiện tại là nil (Chưa chọn team)
+    if game.Players.LocalPlayer.Team == nil then
+        local TargetTeam = _G.SelectedTeam or "Pirates" -- Nếu không có cấu hình thì mặc định Pirates
+        
+        repeat
+            task.wait(0.5)
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam", TargetTeam)
+        until game.Players.LocalPlayer.Team ~= nil or not game:IsLoaded()
+        
+        Fluent:Notify({
+            Title = "Banana Cat Hub",
+            Content = "Đã tự động chọn phe: " .. TargetTeam,
+            Duration = 5
+        })
+    else
+        -- Nếu đã có team rồi thì thông báo để bạn biết
+        print("Banana Cat: Bạn đã ở trong team, bỏ qua tự động chọn.")
+    end
+end)
 
 Fluent:Notify({
     Title = "Banana Cat Hub [ Free ]",
-    Content = "Script đã sẵn sàng với Abilities Shop!",
+    Content = "Loaded Successfully",
     Duration = 5
 })
 
