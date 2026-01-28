@@ -400,7 +400,7 @@ local IslandData = {
         ["Ice Castle"] = Vector3.new(6093, 27, -6161),
         ["Forgotten Island"] = Vector3.new(-3050, 237, -10168),
         ["Dark Arena"] = Vector3.new(3917, 55, -11411),
-        ["The Factory"] = Vector3.new(424, 211, -428)
+        ["Factory"] = Vector3.new(424, 211, -428)
     },
     ["Sea 3"] = {
         ["Port Town"] = Vector3.new(-290, 6, 5307),
@@ -408,30 +408,35 @@ local IslandData = {
         ["Floating Turtle"] = Vector3.new(-13234, 431, -7644),
         ["Castle on the Sea"] = Vector3.new(-5075, 314, -3151),
         ["Haunted Castle"] = Vector3.new(-9547, 141, 5532),
-        ["Sea of Treats (Candy)"] = Vector3.new(-2004, 37, -12028),
-        ["Tiki Outpost"] = Vector3.new(-12463, 11, -2256), -- Update 20
+        ["Tiki Outpost"] = Vector3.new(-12463, 11, -2256),
         ["Chocolate Land"] = Vector3.new(125, 25, -12574),
         ["Peanut Island"] = Vector3.new(-1981, 37, -12140),
         ["Cake Island"] = Vector3.new(-1891, 14, -13608),
         ["Ice Cream Land"] = Vector3.new(-830, 65, -12686),
-        ["Hydra Arena"] = Vector3.new(5216, 17, -1113),
-        ["Temple of Time"] = Vector3.new(2830, 14897, 105) -- Để làm Race V4
+        ["Candy Cane Island"] = Vector3.new(-1120, 15, -14450),
+        ["Temple of Time"] = Vector3.new(2830, 14897, 105)
     }
 }
 
--- [[ XỬ LÝ NHẬN DIỆN SEA ]]
+-- [[ LOGIC NHẬN DIỆN SEA CHUẨN ID ]]
 local CurrentSea = "Sea 1"
-local SeaId = game.PlaceId
-if SeaId == 4442272183 then CurrentSea = "Sea 2"
-elseif SeaId == 7449423635 then CurrentSea = "Sea 3" end
+local pId = game.PlaceId
+
+if pId == 2753915549 then 
+    CurrentSea = "Sea 1"
+elseif pId == 4442272183 then 
+    CurrentSea = "Sea 2"
+elseif pId == 7449423635 then 
+    CurrentSea = "Sea 3" 
+end
 
 local IslandNames = {}
 for name, _ in pairs(IslandData[CurrentSea]) do
     table.insert(IslandNames, name)
 end
-table.sort(IslandNames) -- Sắp xếp tên theo bảng chữ cái cho dễ nhìn
+table.sort(IslandNames)
 
--- [[ UI COMPONENT ]]
+-- [[ UI DROPDOWN & TOGGLE ]]
 local SelectedIsland = nil
 
 Tabs.LocalPlayer:AddDropdown("IslandDropdown", {
@@ -453,14 +458,15 @@ Tabs.LocalPlayer:AddToggle("TpIsland", {
             while _G.TpIsland do
                 if SelectedIsland and IslandData[CurrentSea][SelectedIsland] then
                     local TargetPos = IslandData[CurrentSea][SelectedIsland]
-                    -- Sử dụng hàm _G:Tween bạn đã có sẵn
+                    -- Sử dụng hàm _G:Tween bạn đã khai báo sẵn
                     _G:Tween(CFrame.new(TargetPos))
                 end
-                task.wait(0.5)
+                task.wait(1)
             end
         end)
     end
 })
+
 
 
 -- [[ QUẢN LÝ CẤU HÌNH ]]
