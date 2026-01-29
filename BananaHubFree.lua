@@ -90,7 +90,7 @@ end
 
 -- [[ VÒNG LẶP FAST ATTACK & AUTO CLICK NGOÀI MÀN HÌNH ]]
 spawn(function()
-    while task.wait(0.1) do
+    while task.wait(0.0001) do
         if _G.FastAttackToggle then
             pcall(function()
                 local LP = game.Players.LocalPlayer
@@ -111,22 +111,6 @@ spawn(function()
             end)
         end
     end
-end)
--- [[ HÀM NOCLIP TỐI ƯU ]]
-_G.NoClip = true -- Mặc định bật NoClip
-
-task.spawn(function()
-    game:GetService("RunService").Stepped:Connect(function()
-        pcall(function()
-            if _G.NoClip and game.Players.LocalPlayer.Character then
-                for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-                    if v:IsA("BasePart") then
-                        v.CanCollide = false
-                    end
-                end
-            end
-        end)
-    end)
 end)
 
 
@@ -236,6 +220,39 @@ do
         end
     })
 end
+-- [[ LOGIC NO CLIP ]]
+_G.NoClip = true
+
+task.spawn(function()
+    game:GetService("RunService").Stepped:Connect(function()
+        if _G.NoClip then
+            pcall(function()
+                local Character = game.Players.LocalPlayer.Character
+                if Character then
+                    for _, v in pairs(Character:GetChildren()) do
+                        if v:IsA("BasePart") then
+                            v.CanCollide = false
+                        end
+                    end
+                end
+            end)
+        end
+    end)
+end)
+
+-- [[ GIAO DIỆN ]]
+do
+    Tabs.SettingFarm:AddSection("Player Utilities")
+
+    Tabs.SettingFarm:AddToggle("NoClipToggle", {
+        Title = "No Clip",
+        Default = true,
+        Callback = function(Value)
+            _G.NoClip = Value
+        end
+    })
+end
+
    -------------------------------------------------------
 -------------------------------------------------------
 -------------------------------------------------------
@@ -453,7 +470,7 @@ task.spawn(function()
         
         Fluent:Notify({
             Title = "Banana Cat Hub",
-            Content = "Đã tự động chọn phe: " .. TargetTeam,
+            Content = "Team Chossed" .. TargetTeam,
             Duration = 5
         })
     else
