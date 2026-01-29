@@ -945,8 +945,8 @@ Tabs.LocalPlayer:AddDropdown("TeamDropdown", {
         _G.SelectedTeam = Value -- Lưu lựa chọn vào biến toàn cục
     end
 })
-local v49 = Tabs.Farming:AddToggle("ToggleLevel", {
-    Title = "Cày Cấp",
+local v49 = v16.Farming:AddToggle("ToggleLevel", {
+    Title = "Auto Farm Level",
     Description = "",
     Default = false
 });
