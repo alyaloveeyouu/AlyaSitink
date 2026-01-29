@@ -242,7 +242,6 @@ end)
 
 -- [[ GIAO DIỆN ]]
 do
-    Tabs.SettingFarm:AddSection("Player Utilities")
 
     Tabs.SettingFarm:AddToggle("NoClipToggle", {
         Title = "No Clip",
@@ -296,6 +295,16 @@ task.spawn(function()
         end)
     end
 end)
+
+Tabs.LocalPlayer:AddDropdown("TeamDropdown", {
+    Title = "Auto Select Team",
+    Values = {"Pirates", "Marines"},
+    Multi = false,
+    Default = "Marines",
+    Callback = function(Value)
+        _G.SelectedTeam = Value -- Lưu lựa chọn vào biến toàn cục
+    end
+})
 
 Tabs.SeaEvent:AddButton({
     Title = "Teleport To Your Boat",
@@ -432,16 +441,6 @@ ToggleFind:OnChanged(function(Value)
         end)
     end
 end)
-
-Tabs.LocalPlayer:AddDropdown("TeamDropdown", {
-    Title = "Auto Select Team",
-    Values = {"Pirates", "Marines"},
-    Multi = false,
-    Default = "Marines",
-    Callback = function(Value)
-        _G.SelectedTeam = Value -- Lưu lựa chọn vào biến toàn cục
-    end
-})
 
 
 -- [[ QUẢN LÝ CẤU HÌNH ]]
