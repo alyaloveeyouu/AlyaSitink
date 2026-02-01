@@ -249,9 +249,9 @@ spawn(function()
 		end
 	end)
 local Tabs = {
-  HuntLeviathan = Window:AddTab({ Title = "Hunt Leviathan", Icon = "map" }),
- Skill = Window:AddTab({ Title = "Select And Hold Skill", Icon = "zap" }),
-    Fruit = Window:AddTab({ Title = "Fruit", Icon = "cherry" })
+ local HuntLeviathan = Window:AddTab({ Title = "Hunt Leviathan", Icon = "map" }),
+local Skill = Window:AddTab({ Title = "Select And Hold Skill", Icon = "zap" }),
+ local Fruit = Window:AddTab({ Title = "Fruit", Icon = "cherry" })
 }
 
 Tabs.HuntLeviathan:AddSection("Sea Event / Setting Sail")
