@@ -168,6 +168,61 @@ do
             game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(v366))
         end
     })
+
+
+   -------------------------------------------------------
+-------------------------------------------------------
+-------------------------------------------------------
+-- [ ELITE HUNTER - FULL SCAN LOGIC ]
+-------------------------------------------------------
+local function GetEliteStatus()
+    local Elites = {"Deandre", "Diablo", "Urban"}
+    local Found = false
+    
+    -- Quét toàn bộ mọi thứ trong Workspace (bao gồm tất cả folder con)
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("Model") and v:FindFirstChild("Humanoid") then
+            -- Kiểm tra máu để chắc chắn boss còn sống
+            if v.Humanoid.Health > 0 then
+                for _, name in pairs(Elites) do
+                    -- Kiểm tra tên model hoặc tên hiển thị
+                    if v.Name == name or (v.Humanoid.DisplayName and v.Humanoid.DisplayName:find(name)) then
+                        Found = true
+                        break
+                    end
+                end
+            end
+        end
+        if Found then break end
+    end
+    
+    return "Elite Hunter : " .. (Found and "✅" or "❌")
+end
+
+-- Tạo Paragraph gọn nhất
+local EliteParagraph = Tabs.Status:AddParagraph({
+    Title = GetEliteStatus(), 
+    Content = "" 
+})
+
+-- Vòng lặp cập nhật mỗi 2 giây để tránh lag máy
+task.spawn(function()
+    while task.wait(0.1) do
+        pcall(function()
+            EliteParagraph:SetTitle(GetEliteStatus())
+        end)
+    end
+end)
+
+Tabs.LocalPlayer:AddDropdown("TeamDropdown", {
+    Title = "Auto Select Team",
+    Values = {"Pirates", "Marines"},
+    Multi = false,
+    Default = "Marines",
+    Callback = function(Value)
+        _G.SelectedTeam = Value -- Lưu lựa chọn vào biến toàn cục
+    end
+})
     -- Setting Farm
     -- Section: Farm Setting
     Tabs.SettingFarm:AddSection("Attack Settings")
@@ -250,60 +305,6 @@ do
         end
     })
 end
-
-   -------------------------------------------------------
--------------------------------------------------------
--------------------------------------------------------
--- [ ELITE HUNTER - FULL SCAN LOGIC ]
--------------------------------------------------------
-local function GetEliteStatus()
-    local Elites = {"Deandre", "Diablo", "Urban"}
-    local Found = false
-    
-    -- Quét toàn bộ mọi thứ trong Workspace (bao gồm tất cả folder con)
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v:IsA("Model") and v:FindFirstChild("Humanoid") then
-            -- Kiểm tra máu để chắc chắn boss còn sống
-            if v.Humanoid.Health > 0 then
-                for _, name in pairs(Elites) do
-                    -- Kiểm tra tên model hoặc tên hiển thị
-                    if v.Name == name or (v.Humanoid.DisplayName and v.Humanoid.DisplayName:find(name)) then
-                        Found = true
-                        break
-                    end
-                end
-            end
-        end
-        if Found then break end
-    end
-    
-    return "Elite Hunter : " .. (Found and "✅" or "❌")
-end
-
--- Tạo Paragraph gọn nhất
-local EliteParagraph = Tabs.Status:AddParagraph({
-    Title = GetEliteStatus(), 
-    Content = "" 
-})
-
--- Vòng lặp cập nhật mỗi 2 giây để tránh lag máy
-task.spawn(function()
-    while task.wait(0.1) do
-        pcall(function()
-            EliteParagraph:SetTitle(GetEliteStatus())
-        end)
-    end
-end)
-
-Tabs.LocalPlayer:AddDropdown("TeamDropdown", {
-    Title = "Auto Select Team",
-    Values = {"Pirates", "Marines"},
-    Multi = false,
-    Default = "Marines",
-    Callback = function(Value)
-        _G.SelectedTeam = Value -- Lưu lựa chọn vào biến toàn cục
-    end
-})
 Tabs.SeaEvent:AddButton({
     Title = "Teleport To Your Boat",
     Callback = function()
