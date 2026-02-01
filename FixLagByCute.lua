@@ -22,41 +22,38 @@ Btn.MouseButton1Click:Connect(function() Window:Minimize() end)
 
 
 -- [[ KHỞI TẠO ĐẦY ĐỦ TABS ]]
-local FixLag = Window:AddTab({ Title = "Fix Lag" , Icon = "" })
+local FixLagTab = Window:AddTab({ Title = "Fix Lag" , Icon = "" })
 -- Toggle Clear Map: Xóa texture/hiệu ứng nhưng giữ nguyên Part để không rơi khỏi map
-FixLag:AddToggle("ClearMapToggle", {
+FixLagTab:AddToggle("ClearMapGrey", {
     Title = "Clear Map",
     Default = false,
     Callback = function(Value)
         _G.ClearMap = Value
         if Value then
-            -- Tối ưu hóa cực hạn
-            for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
-                if v:IsA("BasePart") then
-                    v.Material = Enum.Material.SmoothPlastic
-                    v.CastShadow = false
-                elseif v:IsA("Texture") or v:IsA("Decal") then
-                    v.Enabled = false
-                elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-                    v.Enabled = false
+            pcall(function()
+                for _, v in ipairs(game:GetDescendants()) do
+                    if not _G.ClearMap then break end
+                    
+                    if v:IsA("BasePart") then
+                        v.Material = Enum.Material.SmoothPlastic
+                        v.Color = Color3.fromRGB(163, 162, 165) -- Biến tất cả thành màu xám
+                        v.CastShadow = false
+                    elseif v:IsA("Texture") or v:IsA("Decal") or v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                        v.Enabled = false
+                    end
                 end
-            end
-            
-            -- Tắt hiệu ứng ánh sáng
-            local Lighting = game:GetService("Lighting")
-            Lighting.GlobalShadows = false
-            Lighting.FogEnd = 9e9
+                
+                -- Tối ưu hóa Lighting để đồng bộ màu xám
+                local Lighting = game:GetService("Lighting")
+                Lighting.GlobalShadows = false
+                Lighting.OutdoorAmbient = Color3.fromRGB(163, 162, 165)
+            end)
             
             Fluent:Notify({
                 Title = "Fix Lag BF",
-                Content = "Đã dọn dẹp Map thành công!",
+                Content = "Đã chuyển Map sang chế độ tối giản xám!",
                 Duration = 2
             })
         end
     end
 })
-
--- Tự động nhảy vào tab này
-Window:SelectTab(1)
-
-
