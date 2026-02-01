@@ -274,37 +274,8 @@ do
         end
     })
 end
--- [[ LOGIC NO CLIP ]]
-_G.NoClip = true
 
-task.spawn(function()
-    game:GetService("RunService").Stepped:Connect(function()
-        if _G.NoClip then
-            pcall(function()
-                local Character = game.Players.LocalPlayer.Character
-                if Character then
-                    for _, v in pairs(Character:GetChildren()) do
-                        if v:IsA("BasePart") then
-                            v.CanCollide = false
-                        end
-                    end
-                end
-            end)
-        end
-    end)
-end)
 
--- [[ GIAO DIỆN ]]
-do
-
-    Tabs.SettingFarm:AddToggle("NoClipToggle", {
-        Title = "No Clip",
-        Default = true,
-        Callback = function(Value)
-            _G.NoClip = Value
-        end
-    })
-end
 Tabs.SeaEvent:AddButton({
     Title = "Teleport To Your Boat",
     Callback = function()
