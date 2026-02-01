@@ -25,33 +25,67 @@ Btn.MouseButton1Click:Connect(function() Window:Minimize() end)
 local FixLagTab = Window:AddTab({ Title = "Fix Lag" , Icon = "" })
 -- Toggle Clear Map: Xóa texture/hiệu ứng nhưng giữ nguyên Part để không rơi khỏi map
 FixLagTab:AddToggle("ClearMapGrey", {
-    Title = "Clear Map",
+    Title = "Disable Effect",
     Default = false,
     Callback = function(Value)
         _G.ClearMap = Value
         if Value then
             pcall(function()
-                for _, v in ipairs(game:GetDescendants()) do
-                    if not _G.ClearMap then break end
+                -- Thiết lập môi trường và ánh sáng theo code của bạn
+                local g = game
+                local w = g.Workspace
+                local l = g.Lighting
+                local t = w.Terrain
+                
+                t.WaterWaveSize = 0
+                t.WaterWaveSpeed = 0
+                t.WaterReflectance = 0
+                t.WaterTransparency = 0
+                
+                l.GlobalShadows = false
+                l.FogEnd = 9e9
+                l.Brightness = 0
+                l.OutdoorAmbient = Color3.fromRGB(163, 162, 165)
+                
+                settings().Rendering.QualityLevel = "Level01"
+
+                -- Duyệt và biến tất cả thành màu xám + Smooth Plastic
+                for i, v in pairs(g:GetDescendants()) do
+                    if not _G.ClearMap then break end -- Dừng nếu tắt toggle
                     
-                    if v:IsA("BasePart") then
+                    if v:IsA("BasePart") or v:IsA("Union") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") or v:IsA("MeshPart") then 
                         v.Material = Enum.Material.SmoothPlastic
-                        v.Color = Color3.fromRGB(163, 162, 165) -- Biến tất cả thành màu xám
+                        v.Reflectance = 0
                         v.CastShadow = false
-                    elseif v:IsA("Texture") or v:IsA("Decal") or v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                        v.Color = Color3.fromRGB(163, 162, 165) -- Màu xám
+                        if v:IsA("MeshPart") then
+                            v.TextureID = "" -- Xóa texture gốc thay vì để ID lạ để tránh lỗi load
+                        end
+                    elseif v:IsA("Decal") or v:IsA("Texture") then
+                        v.Transparency = 1
+                        v.Enabled = false
+                    elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                        v.Lifetime = NumberRange.new(0)
+                        v.Enabled = false
+                    elseif v:IsA("Explosion") then
+                        v.BlastPressure = 1
+                        v.BlastRadius = 1
+                    elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") or v:IsA("Sparkles") then
                         v.Enabled = false
                     end
                 end
-                
-                -- Tối ưu hóa Lighting để đồng bộ màu xám
-                local Lighting = game:GetService("Lighting")
-                Lighting.GlobalShadows = false
-                Lighting.OutdoorAmbient = Color3.fromRGB(163, 162, 165)
+
+                -- Tắt các hiệu ứng hình ảnh
+                for i, e in pairs(l:GetChildren()) do
+                    if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("ColorCorrectionEffect") or e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then
+                        e.Enabled = false
+                    end
+                end
             end)
             
             Fluent:Notify({
                 Title = "Fix Lag BF",
-                Content = "Đã chuyển Map sang chế độ tối giản xám!",
+                Content = "Fix Lag Enabled",
                 Duration = 2
             })
         end
