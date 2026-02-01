@@ -254,7 +254,7 @@ local Skill = Window:AddTab({ Title = "Select And Hold Skill", Icon = "zap" }),
  local Fruit = Window:AddTab({ Title = "Fruit", Icon = "cherry" })
 }
 
-Tabs.HuntLeviathan:AddSection("Sea Event / Setting Sail")
+local HuntLeviathan = Tabs.HuntLeviathan:AddSection("Sea Event / Setting Sail")
 	local ListSeaBoat = {
 		"Guardian",
 		"PirateGrandBrigade",
@@ -313,7 +313,7 @@ Tabs.HuntLeviathan:AddSection("Sea Event / Setting Sail")
 			end
 		end)
 	end)
-	local Q = Tabs.HuntLeviathan:AddToggle("Q", {
+	local HuntLeviathan = Tabs.HuntLeviathan:AddToggle("Q", {
 		Title = "Auto Teleport Frozen Dimension",
 		Description = "turn on for teleport to frozen dimension and start the leviathan gate",
 		Default = false
@@ -333,12 +333,12 @@ Tabs.HuntLeviathan:AddSection("Sea Event / Setting Sail")
 			end
 		end
 	end)
-	local Q = Tabs.Leviathan:AddToggle("Q", {
+	local HuntLeviathan = Tabs.Leviathan:AddToggle("Q", {
 		Title = "Auto Drive To Hydra Island",
 		Description = "",
 		Default = false
 	})
-	Q:OnChanged(function(Value)
+	HuntLeviathan:OnChanged(function(Value)
 		_G.SailBoat_Hydra = Value
 	end)
 	spawn(function()
@@ -372,37 +372,37 @@ Tabs.HuntLeviathan:AddSection("Sea Event / Setting Sail")
 			end
 		end
 	end)
-	local Q = Tabs.HuntLeviathan:AddDropdown("Q", {
+	local HuntLeviathan = Tabs.HuntLeviathan:AddDropdown("Q", {
 		Title = "Choose Boats",
 		Values = ListSeaBoat,
 		Multi = false,
 		Default = 1
 	})
-	Q:OnChanged(function(Value)
+	HuntLeviathan:OnChanged(function(Value)
 		_G.SelectedBoat = Value
 	end)
-	Tabs.HuntLeviathan:AddButton({
+	local HuntLeviathan = Tabs.HuntLeviathan:AddButton({
 		Title = "Buy Boats",
 		Description = "Buy the select boats",
 		Callback = function()
 			replicated.Remotes.CommF_:InvokeServer("BuyBoat", _G.SelectedBoat)
 		end
 	})
-	local Q = Tabs.HuntLeviathan:AddDropdown("Q", {
+	local HuntLeviathan = Tabs.HuntLeviathan:AddDropdown("Q", {
 		Title = "Choose Sea Level",
 		Values = ListSeaZone,
 		Multi = false,
 		Default = 1
 	})
-	Q:OnChanged(function(Value)
+	HuntLeviathan:OnChanged(function(Value)
 		_G.DangerSc = Value
 	end)
-	local Q = Tabs.HuntLeviathan:AddToggle("Q", {
+	local HuntLeviathan = Tabs.HuntLeviathan:AddToggle("Q", {
 		Title = "Auto Sail Boat",
 		Description = "",
 		Default = false
 	})
-	Q:OnChanged(function(Value)
+	HuntLeviathan:OnChanged(function(Value)
 		_G.SailBoats = Value
 	end)
 	spawn(function()
@@ -468,77 +468,77 @@ Tabs.HuntLeviathan:AddSection("Sea Event / Setting Sail")
 			end)
 		end
 	end)
-	Tabs.HuntLeviathan:AddSection("Entity Sea Event")
-	Q = Tabs.SeaEvent:AddToggle("Q", {
+	local HuntLeviathan = Tabs.HuntLeviathan:AddSection("Entity Sea Event")
+	HuntLeviathan = Tabs.SeaEvent:AddToggle("Q", {
 		Title = "Auto Shark",
 		Description = "",
 		Default = false
 	})
-	Q:OnChanged(function(Value)
+	HuntLeviathan:OnChanged(function(Value)
 		_G.Shark = Value
 	end)
-	Q = Tabs.HuntLeviathan:AddToggle("Q", {
+	local HuntLeviathan = Tabs.HuntLeviathan:AddToggle("Q", {
 		Title = "Auto Piranha",
 		Description = "",
 		Default = false
 	})
-	Q:OnChanged(function(Value)
+	local HuntLeviathan:OnChanged(function(Value)
 		_G.Piranha = Value
 	end)
-	Q = Tabs.HuntLeviathan:AddToggle("Q", {
+	local HuntLeviathan = Tabs.HuntLeviathan:AddToggle("Q", {
 		Title = "Auto Terror Shark",
 		Description = "",
 		Default = false
 	})
-	Q:OnChanged(function(Value)
+	HuntLeviathan:OnChanged(function(Value)
 		_G.TerrorShark = Value
 	end)
-	Q = Tabs.HuntLeviathan:AddToggle("Q", {
+	local HuntLeviathan = Tabs.HuntLeviathan:AddToggle("Q", {
 		Title = "Auto Fish Crew Member",
 		Description = "",
 		Default = false
 	})
-	Q:OnChanged(function(Value)
+	HuntLeviathan:OnChanged(function(Value)
 		_G.MobCrew = Value
 	end)
-	Q = Tabs.HuntLeviathan:AddToggle("Q", {
+	local HuntLeviathan = Tabs.HuntLeviathan:AddToggle("Q", {
 		Title = "Auto Haunted Crew Member",
 		Description = "",
 		Default = false
 	})
-	Q:OnChanged(function(Value)
+	HuntLeviathan:OnChanged(function(Value)
 		_G.HCM = Value
 	end)
-	Q = Tabs.HuntLeviathan:AddToggle("Q", {
+	local HuntLeviathan = Tabs.HuntLeviathan:AddToggle("Q", {
 		Title = "Auto Attack PirateGrandBrigade",
 		Description = "",
 		Default = false
 	})
-	Q:OnChanged(function(Value)
+	HuntLeviathan:OnChanged(function(Value)
 		_G.PGB = Value
 	end)
-	Q = Tabs.HuntLeviathan:AddToggle("Q", {
+	HuntLeviathan = Tabs.HuntLeviathan:AddToggle("Q", {
 		Title = "Auto Attack Fish Boat",
 		Description = "",
 		Default = false
 	})
-	Q:OnChanged(function(Value)
+	HuntLeviathan:OnChanged(function(Value)
 		_G.FishBoat = Value
 	end)
-	Q = Tabs.HubtLeviathan:AddToggle("Q", {
+	local HuntLeviathan = Tabs.HubtLeviathan:AddToggle("Q", {
 		Title = "Auto Attack Sea Beast",
 		Description = "",
 		Default = false
 	})
-	Q:OnChanged(function(Value)
+	HuntLeviathan:OnChanged(function(Value)
 		_G.SeaBeast1 = Value
 	end)
-	Q = Tabs.HuntLeviathan:AddToggle("Q", {
+	local HuntLeviathan = Tabs.HuntLeviathan:AddToggle("Q", {
 		Title = "Auto Attack Leviathan",
 		Description = "",
 		Default = false
 	})
-	Q:OnChanged(function(Value)
+	HuntLeviathan:OnChanged(function(Value)
 		_G.Leviathan1 = Value
 	end)
 	spawn(function()
