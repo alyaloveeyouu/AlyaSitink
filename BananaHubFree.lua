@@ -213,7 +213,7 @@ task.spawn(function()
         end)
     end
 end)
-
+do
 Tabs.LocalPlayer:AddDropdown("TeamDropdown", {
     Title = "Auto Select Team",
     Values = {"Pirates", "Marines"},
@@ -225,6 +225,7 @@ Tabs.LocalPlayer:AddDropdown("TeamDropdown", {
 })
     -- Setting Farm
     -- Section: Farm Setting
+    do
     Tabs.SettingFarm:AddSection("Attack Settings")
     Tabs.SettingFarm:AddDropdown("WeaponDropdown", {
         Title = "Select Weapon",
@@ -275,7 +276,7 @@ do
     })
 end
 
-
+do
 Tabs.SeaEvent:AddButton({
     Title = "Teleport To Your Boat",
     Callback = function()
