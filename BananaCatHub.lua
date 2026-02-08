@@ -182,9 +182,7 @@ Esp=Window:AddTab({Title="Tab Esp"})
 Tabs.Shop:AddParagraph({
     Title = "Fighting Shop\n^^^^^^^^^^^^^"
 })
-local Shop = Tabs.Shop
-
-Shop:AddToggle({
+Tabs.Shop:AddToggle({
     Title = "Black Leg",
     Default = false,
     Callback = function(v)
@@ -205,7 +203,7 @@ Shop:AddToggle({
     end
 })
 
-Shop:AddToggle({
+Tabs.Shop:AddToggle({
     Title = "Fishman Karate",
     Callback = function(v)
         _G.Fishman = v
@@ -225,7 +223,7 @@ Shop:AddToggle({
     end
 })
 
-Shop:AddToggle({
+Tabs.Shop:AddToggle({
     Title = "Electro",
     Callback = function(v)
         _G.Electro = v
@@ -245,7 +243,7 @@ Shop:AddToggle({
     end
 })
 
-Shop:AddToggle({
+Tabs.Shop:AddToggle({
     Title = "Dragon Breath",
     Callback = function(v)
         _G.DragonBreath = v
@@ -264,7 +262,7 @@ Shop:AddToggle({
     end
 })
 
-Shop:AddToggle({
+Tabs.Shop:AddToggle({
     Title = "SuperHuman",
     Callback = function(v)
         _G.SuperHuman = v
@@ -282,7 +280,7 @@ Shop:AddToggle({
     end
 })
 
-Shop:AddToggle({
+Tabs.Shop:AddToggle({
     Title = "Death Step",
     Callback = function(v)
         _G.DeathStep = v
@@ -300,7 +298,7 @@ Shop:AddToggle({
     end
 })
 
-Shop:AddToggle({
+Tabs.Shop:AddToggle({
     Title = "Sharkman Karate",
     Callback = function(v)
         _G.Sharkman = v
@@ -319,7 +317,7 @@ Shop:AddToggle({
     end
 })
 
-Shop:AddToggle({
+Tabs.Shop:AddToggle({
     Title = "Electric Claw",
     Callback = function(v)
         _G.ElectricClaw = v
@@ -335,7 +333,7 @@ Shop:AddToggle({
     end
 })
 
-Shop:AddToggle({
+Tabs.Shop:AddToggle({
     Title = "Dragon Talon",
     Callback = function(v)
         _G.DragonTalon = v
@@ -351,7 +349,7 @@ Shop:AddToggle({
     end
 })
 
-Shop:AddToggle({
+Tabs.Shop:AddToggle({
     Title = "God Human",
     Callback = function(v)
         _G.GodHuman = v
@@ -367,7 +365,7 @@ Shop:AddToggle({
     end
 })
 
-Shop:AddToggle({
+Tabs.Shop:AddToggle({
     Title = "Sanguine Art",
     Callback = function(v)
         _G.Sanguine = v
@@ -555,3 +553,4 @@ Shop:AddButton({
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
     end
 })
+ Window:SelectTab(1)
