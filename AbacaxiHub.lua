@@ -6237,12 +6237,11 @@ local function SetVelocity(part, enable)
         lv.Attachment0 = att
     end
 end
-local ToggleFind = Event:AddToggle({
+Event:AddToggle({
 	Name = "Auto Find Leviathan",
 	Description = "",
 	Default = false,
-	Callback = function(I)
-    ToggleFind:OnChanged(function(Value)
+	Callback = ToggleFind:OnChanged(function(Value)
         _G.Auto = Value
         if Value then
             task.spawn(function()
